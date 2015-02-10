@@ -1,11 +1,15 @@
 //  TriDPrinting.com Flying SkyDelta 3d Printer
 
 
+// Vertex Parameters:
 // Important Note:  The shape and angles in the vertex depends
 // on the length of the pieces.
 // Here are the parameters that need to be adjusted:
-sidelength=400;
-vertlength=490;
+sidelength=600;
+vertlength=1000;
+separation = 5; // May need to edit when adjusting above values
+// look at the tips of the Misumi Bars
+lift = 4; // Adjust to make the part lay flat on the origin.
 
 
 eps = 0.01;
@@ -24,7 +28,6 @@ echo("br=",baseradius," zheight=",zheight, " sideangle=",sideangle);
 module Ring(od,id,w,ofs=0) {
   translate([0,0,ofs])
   difference() {
-echo (r=od/2,h=w,$fs=0.1,w);
     cylinder(r=od/2,h=w,$fs=0.1);
     translate([0,0,-eps]) cylinder(r=id/2,h=w+eps+eps,$fs=0.1);
   }
@@ -127,8 +130,8 @@ module MisumiMold(h, ex=0, endboltlength=0, grooves=true) {
 module apVertex(length, endboltlength, grooves=true) {
   translate([15,0,0]) rotate([0,90,0]) MisumiMold(length,0.4,endboltlength,grooves);
   rotate([0,0,60]) translate([15,0,0]) rotate([0,90,0]) MisumiMold(length,0.4,endboltlength,grooves);
-  rotate([0,-sideangle,-30]) translate([20,0,-3]) rotate([0,90,0]) MisumiMold(length,0.4,endboltlength,grooves);
-  rotate([0,-sideangle,90]) translate([20,0,-3]) rotate([0,90,0]) MisumiMold(length,0.4,endboltlength,grooves);
+  rotate([0,-sideangle,-30]) translate([20,0,-separation]) rotate([0,90,0]) MisumiMold(length,0.4,endboltlength,grooves);
+  rotate([0,-sideangle,90]) translate([20,0,-separation]) rotate([0,90,0]) MisumiMold(length,0.4,endboltlength,grooves);
 }
 
 
@@ -138,8 +141,8 @@ module AntiPrismVertex(PrintOnBack=true) {
 
       minkowski() {
           difference() { //Make a flat bottomed "foot"
-          FlatBottomed() translate([0,0,-5.064]) rotate([46.328,-51.403,0]) apVertex(1,0,false);
-            translate([0,0,-5.064]) rotate([46.328,-51.403,0]) translate([-10,-15,-67.5]) cube(60);
+          FlatBottomed() translate([0,0,-lift]) rotate([46.328,-51.403,0]) apVertex(1,0,false);
+            translate([0,0,-lift]) rotate([46.328,-51.403,0]) translate([-10,-15,-67.5]) cube(60);
           }
         sphere(r=roundedradius);
         }
@@ -246,7 +249,7 @@ module AnchorBearingPair(ExtrusionGroove=true) {
 
  if (ExtrusionGroove) {
    translate([-10,-8,11]) rotate([-90,0,0]) AnchorBearing(true); // Include Extrusion Groove 
-   translate([10,-8,11]) rotate([-90,0,0]) mirror(x) AnchorBearing(true);
+   translate([10,-8,11]) rotate([-90,0,0]) mirror() AnchorBearing(true);
   } else {
    translate([-10,0,0]) AnchorBearing(false); 
    translate([10,0,0]) mirror(x) AnchorBearing(false);
@@ -443,11 +446,11 @@ module CenterBearing() {
 //vBearing();
 //vBearingMold();
 //MisumiMold(50);
-//AntiPrismVertex(true);
+AntiPrismVertex(true);
 
-// Anchor Bearings
+//Anchor Bearings
 //AnchorBearing(false);//Single. Need mirror or AnchorBearingPair
-AnchorBearingPair(true);
+//AnchorBearingPair(true);
 //AnchorBearingPair(false);
 
 //BigBearing30(true);  //  Uses large white Bearing
