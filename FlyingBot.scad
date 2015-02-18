@@ -16,9 +16,13 @@ eps = 0.01;
 extrusionsize=15;
 roundedradius=3;
 
+JHeadGrooveThickness=4.5;
+
 baseradius=sidelength/2/cos(30);
 zheight=sqrt(vertlength*vertlength - baseradius*baseradius);
 sideangle=atan(zheight/baseradius);
+
+m3nutradius = 3.1; // Radius of 6 sided nut
 
 echo("br=",baseradius," zheight=",zheight, " sideangle=",sideangle);
 
@@ -90,7 +94,7 @@ module vBearingMold(od=12) {
 
 module BoltMold(d=3, h=10, faces=32) {
   cylinder(r=d/2,h=h,$fs=0.1);
-  largeRadius = (faces == 6) ? 1.16*d : d;
+  largeRadius = (faces == 6) ? 1.16*d : 1.08*d;
   translate([0,0,-30+eps]) cylinder(r=largeRadius,h=30,$fn=faces);
 }
 
@@ -199,7 +203,7 @@ module BigBearing30(IncludeGrooves=false) {
 }
 
 
-module AnchorBearing(IncludeGrooves=false) {
+module AnchorBearing(IncludeGrooves=false, IncludeGuide=false) {
   rotate([-120,0,0]) translate([0,-13.85,0]) {
     difference() { 
       union() {
@@ -224,6 +228,10 @@ module AnchorBearing(IncludeGrooves=false) {
         translate([0,10,3]) rotate([30,0,0]) translate([0,-5,-18]) rotate([-90,0,0]) BoltMold(h=15);
       }
 
+      if (!IncludeGuide) {
+        translate([5,-10,-12]) rotate([-5,0,45]) cube([15,9,25]);
+      }
+
       // Top Bolt
       translate([0,10,1]) rotate([30,0,0]) translate([0,-6,-6]) rotate([-90,0,0]) BoltMold(h=15); 
 
@@ -246,6 +254,66 @@ module AnchorBearing(IncludeGrooves=false) {
 
 
 module AnchorBearingPair(ExtrusionGroove=true) {
+
+ if (ExtrusionGroove) {
+   translate([-10,-8,11]) rotate([-90,0,0]) AnchorBearing(true); // Include Extrusion Groove 
+   translate([10,-8,11]) rotate([-90,0,0]) mirror() AnchorBearing(true);
+  } else {
+   translate([-10,0,0]) AnchorBearing(false); 
+   translate([10,0,0]) mirror(x) AnchorBearing(false);
+ }
+}
+
+
+module AnchorVBearing(IncludeGrooves=false, IncludeGuide=false) {
+    translate([0,0,13.55])  rotate([-10.5,sideangle+92.7,0]) {
+    difference() { 
+      union() { 
+        translate([0,-5.9,-8]) rotate([0,-sideangle,-30]) cube([20,15,10]);
+			hull() {
+          translate([0,-5.9,-8]) rotate([0,-sideangle,-30])translate([0,0,4]) cube([20,15,1]);
+          translate([-5,13,0]) rotate([90,0,0]) cylinder(r=6,h=15);
+       }
+		  if (IncludeGrooves) {
+          ////translate([0,8,-1]) rotate([30,0,0]) cube([15-eps,16,22],center=true);
+          } else {
+          //translate([0,8,-1]) rotate([30,0,0]) translate([0,0,-5])  cube([15-eps,13.4,32],center=true);
+        }
+
+        // See
+        %translate([-5,18,0]) rotate([90,0,0]) vBearing();
+        //%translate([0,34,-20]) rotate([30,0,0]) MisumiMold(50);
+      } // end union
+
+      // Reversed Bearing Nut Mount Hole  (Using Screw)
+      translate([-5,7,0]) rotate([-90,0,0]) BoltMold(d=3, h=20, faces=6); 
+
+      if (!IncludeGrooves) {
+        //  Bottom Bolt
+        //translate([0,10,3]) rotate([30,0,0]) translate([0,-5,-18]) rotate([-90,0,0]) BoltMold(h=15);
+      }
+
+      // Top Bolt
+      #translate([0,10,1]) rotate([0,-sideangle,-30]) translate([8,-6,-3]) rotate([180,0,0]) BoltMold(h=15); 
+
+      //  V Bearing
+      translate([-5,18,0]) rotate([90,0,0]) vBearingMold();
+      //translate([1,-2,-2]) rotate([0,60,0]) cylinder(r=1,h=20, $fn=8);
+      //Recessed Positioning of Washer
+      //translate([1,-2,-2]) rotate([0,60,0]) translate([0,0,5.5]) cylinder(r=3.3,h=1, $fn=36);
+
+
+
+      // Misumi Mold
+      translate([5,0,-20]) rotate([0,-sideangle,-30]) rotate([0,90,0]) MisumiMold(50,0.4,endboltlength, IncludeGrooves);
+
+
+    }
+  }
+}
+
+
+module AnchorVBearingPair(ExtrusionGroove=true) {
 
  if (ExtrusionGroove) {
    translate([-10,-8,11]) rotate([-90,0,0]) AnchorBearing(true); // Include Extrusion Groove 
@@ -314,8 +382,8 @@ module Effector() {
 
     for (a=[90:120:359]) {
       rotate([0,0,a]) {
-        translate([split/2,0.32*split,0]) cylinder(r=0.6,h=3*thickness,center=true, $fn=8);
-        translate([-split/2,0.32*split,0]) cylinder(r=0.6,h=3*thickness,center=true, $fn=8);
+        translate([split/2,0.32*split,0]) cylinder(r=0.9,h=3*thickness,center=true, $fn=8);
+        translate([-split/2,0.32*split,0]) cylinder(r=0.9,h=3*thickness,center=true, $fn=8);
       }
     }
 
@@ -342,8 +410,6 @@ module Effector() {
       translate([-15,0,0]) cylinder(r=18,h=8);
       translate([-38,-10,0]) cube([10,20,8]);
 
-      //translate([0,-5,0]) cube([60,10,8]);
-      //translate([-10,-45,0]) cube([8,90,8]);
       // Big Support Legs
       for (a=[0:120:359]) {
         rotate([0,0,a]) {
@@ -352,27 +418,54 @@ module Effector() {
       }
       // Little Support Legs
       //for (a=[45,315]) {
-      for (a=[60:120:359]) {
+      translate([5,0,0]) for (a=[60:120:359]) {
         rotate([0,0,a]) {
-          translate([0,-4,0]) cube([40,8,8]);
+          translate([0,-4,0]) cube([36,8,8]);
         }
       }
+
+      // TieOffs
+      for (a=[60:120:359]) {
+        rotate([0,0,a]) {
+          translate([36,0,thickness-eps]) 
+          for (i=[-12,-6,0,10]) translate([0,i,0]) 
+            cylinder(r1=1.3, r2=1.8, h=2, $fn=12);
+        }
+      }
+
+
+      // Fan Mounts
+      for (a=[-16,16]) translate([19,a,thickness+1]) rotate([0,-70,0]) cylinder(r=6,h=6,$fn=16);
+
     } // End Union
 
-    translate([-15,0,0]) {  // Jhead Offset
+    // Rotational Divit
+    translate([0,0,-1.5]) sphere(r=5,$fn=36);
 
-      translate([0,0,-eps]) cylinder(r=5, h=2*thickness,$fn=12);
-      translate([0,0,thickness-4+eps]) cylinder(r=8.2, h=4, $fn=36);
+    // Jhead Offset
+    translate([-15,0,0]) {
+      #translate([0,0,-eps]) cylinder(r=5, h=2*thickness,$fn=32);
+      translate([0,0,thickness-4+eps]) cylinder(r=8.2, h=40, $fn=32);
 
-#      for (a=[-30:60:239]) {
+      for (a=[-30:60:239]) {
         rotate([0, 0, a]) 
           translate([0, 12.5, 0])
             cylinder(r=1.8, h=3*thickness, center=true, $fn=12);
       }
     } // Jhead Offset
 
-    // Rotational Divit
-    translate([0,0,-1.5]) sphere(r=5,$fn=36);
+    // FanMold
+    translate([11.5,0,21.8+thickness]) rotate([20,0,90]) {
+      cube([40, 16, 40], center=true);
+      rotate([90,0,0]) for (a=[0:90:359]) {
+        rotate([0,0,a]) {
+          translate([16,16,-8]) cylinder(r=1.5,h=20,$fn=12);
+          translate([16,16,11]) cylinder(r=m3nutradius,h=20,$fn=6);     
+        }
+        rotate([0, 0, 90,]) cylinder(r=19, h=10, center=true);
+      }
+    }
+
  
     // Cutouts
     if (false) {
@@ -395,6 +488,27 @@ module Effector() {
   }
 }
 
+
+module JHeadMountPlate() {
+  difference() { 
+    translate([0, -1, JHeadGrooveThickness/2]) minkowski() {
+      cube([26, 18, JHeadGrooveThickness], center=true);
+      cylinder(r=2, h=JHeadGrooveThickness/2,$fn=12);
+    }
+
+    translate([0, 0, -eps]) cylinder(r=6, h=JHeadGrooveThickness+1, $fn=24);
+    translate([-6, 0, -eps]) cube([12, 11, JHeadGrooveThickness+1]);
+
+    translate([0, 0, JHeadGrooveThickness]) cylinder(r=9, h=JHeadGrooveThickness+1, $fn=24);
+    translate([-9, 0, JHeadGrooveThickness]) cube([18, 11, JHeadGrooveThickness+1]);
+    for (a = [-120:60:179]) {
+      rotate([0, 0, a]) {
+        translate([0, 12.5, 5]) cylinder(r=1.5, h=12, center=true, $fn=16);
+        translate([0, 12.5, JHeadGrooveThickness]) rotate([0,0,30]) cylinder(r=m3nutradius,h=5,$fn=6);
+      } 
+    }
+  }
+}
 
 module PoleEnds(type,innerdia) {
   difference() {
@@ -446,12 +560,17 @@ module CenterBearing() {
 //vBearing();
 //vBearingMold();
 //MisumiMold(50);
-AntiPrismVertex(true);
+//AntiPrismVertex(true);
 
 //Anchor Bearings
 //AnchorBearing(false);//Single. Need mirror or AnchorBearingPair
-//AnchorBearingPair(true);
+//AnchorBearingPair(true, false);
 //AnchorBearingPair(false);
+
+AnchorVBearing(true);//Single. Need mirror or AnchorBearingPair
+//AnchorVBearingPair(true, false);
+//AnchorVBearingPair(false);
+
 
 //BigBearing30(true);  //  Uses large white Bearing
 //BigBearing30(false); // Not suggested at the moment
@@ -459,6 +578,8 @@ AntiPrismVertex(true);
 
 //Bearing90();
 //Effector();
+//JHeadMountPlate();
+
 //for (x=[1:2]) for (y=[0:1]) translate([x*15,y*15,0]) PoleEnds(x, 4.2);
 //CenterBearing();
 
