@@ -269,21 +269,26 @@ module AnchorSideBearing(IncludeGrooves=false, IncludeGuide=false) {
 
   difference() {
     union() {
-      translate([4,-3,19]) hull() {
-        rotate([0,90-sideangle,0]) rotate([0,90,30]) cylinder(r=6,h=9,$fn=16);
-        translate([0,-4,-16]) cube([1,12,19]); 
+      translate([4,-3,19]) {
+        hull() {
+          rotate([0,90-sideangle,0]) rotate([0,90,30]) {
+            cylinder(r=6,h=9,$fn=16);
+            %translate([0,0,9.5]) vBearing();
+          }
+          translate([0,-4,-16]) cube([1,12,19]); 
+        }
       }
       translate([-2,-7.5,0]) cube([10,15,23]);
     }  // union
       translate([5,-3,19]) rotate([0,90-sideangle,0]) rotate([0,90,30])  BoltMold(d=3, h=20, faces=6);
 
 
-      translate([6,0,5])rotate([0,-90,0])  BoltMold(d=3, h=20, faces=16);
+      translate([5.3,0,7]) rotate([0,-90,0])  BoltMold(d=3, h=20, faces=16);
       // Misumi Mold
       translate([-7.5,0,-15]) MisumiMold(50,0.4,endboltlength, IncludeGrooves);
 
-  translate([1,-8,0]) rotate([0,35,-30]) cube([6,14,14]);
-  #translate([-0.5,-8,21]) rotate([0,20,0]) cube([4,4,4]);
+  translate([1,-8,0]) rotate([0,35,-25]) cube([6,18,14]);
+  translate([-2,-8,21]) rotate([0,20,0]) cube([5,5.5,4]);
 
   } // difference
 }
