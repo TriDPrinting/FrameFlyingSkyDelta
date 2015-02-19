@@ -252,7 +252,6 @@ module AnchorBearing(IncludeGrooves=false, IncludeGuide=false) {
   }
 }
 
-
 module AnchorBearingPair(ExtrusionGroove=true) {
 
  if (ExtrusionGroove) {
@@ -263,64 +262,41 @@ module AnchorBearingPair(ExtrusionGroove=true) {
    translate([10,0,0]) mirror(x) AnchorBearing(false);
  }
 }
+ 	
 
 
-module AnchorVBearing(IncludeGrooves=false, IncludeGuide=false) {
-    translate([0,0,13.55])  rotate([-10.5,sideangle+92.7,0]) {
-    difference() { 
-      union() { 
-        translate([0,-5.9,-8]) rotate([0,-sideangle,-30]) cube([20,15,10]);
-			hull() {
-          translate([0,-5.9,-8]) rotate([0,-sideangle,-30])translate([0,0,4]) cube([20,15,1]);
-          translate([-5,13,0]) rotate([90,0,0]) cylinder(r=6,h=15);
-       }
-		  if (IncludeGrooves) {
-          ////translate([0,8,-1]) rotate([30,0,0]) cube([15-eps,16,22],center=true);
-          } else {
-          //translate([0,8,-1]) rotate([30,0,0]) translate([0,0,-5])  cube([15-eps,13.4,32],center=true);
-        }
+module AnchorSideBearing(IncludeGrooves=false, IncludeGuide=false) {
 
-        // See
-        %translate([-5,18,0]) rotate([90,0,0]) vBearing();
-        //%translate([0,34,-20]) rotate([30,0,0]) MisumiMold(50);
-      } // end union
-
-      // Reversed Bearing Nut Mount Hole  (Using Screw)
-      translate([-5,7,0]) rotate([-90,0,0]) BoltMold(d=3, h=20, faces=6); 
-
-      if (!IncludeGrooves) {
-        //  Bottom Bolt
-        //translate([0,10,3]) rotate([30,0,0]) translate([0,-5,-18]) rotate([-90,0,0]) BoltMold(h=15);
+  difference() {
+    union() {
+      translate([4,-3,19]) hull() {
+        rotate([0,90-sideangle,0]) rotate([0,90,30]) cylinder(r=6,h=9,$fn=16);
+        translate([0,-4,-16]) cube([1,12,19]); 
       }
-
-      // Top Bolt
-      #translate([0,10,1]) rotate([0,-sideangle,-30]) translate([8,-6,-3]) rotate([180,0,0]) BoltMold(h=15); 
-
-      //  V Bearing
-      translate([-5,18,0]) rotate([90,0,0]) vBearingMold();
-      //translate([1,-2,-2]) rotate([0,60,0]) cylinder(r=1,h=20, $fn=8);
-      //Recessed Positioning of Washer
-      //translate([1,-2,-2]) rotate([0,60,0]) translate([0,0,5.5]) cylinder(r=3.3,h=1, $fn=36);
+      translate([-2,-7.5,0]) cube([10,15,23]);
+    }  // union
+      translate([5,-3,19]) rotate([0,90-sideangle,0]) rotate([0,90,30])  BoltMold(d=3, h=20, faces=6);
 
 
-
+      translate([6,0,5])rotate([0,-90,0])  BoltMold(d=3, h=20, faces=16);
       // Misumi Mold
-      translate([5,0,-20]) rotate([0,-sideangle,-30]) rotate([0,90,0]) MisumiMold(50,0.4,endboltlength, IncludeGrooves);
+      translate([-7.5,0,-15]) MisumiMold(50,0.4,endboltlength, IncludeGrooves);
 
+  translate([1,-8,0]) rotate([0,35,-30]) cube([6,14,14]);
+  #translate([-0.5,-8,21]) rotate([0,20,0]) cube([4,4,4]);
 
-    }
-  }
+  } // difference
 }
 
 
-module AnchorVBearingPair(ExtrusionGroove=true) {
+module AnchorSideBearingPair(ExtrusionGroove=true) {
 
  if (ExtrusionGroove) {
-   translate([-10,-8,11]) rotate([-90,0,0]) AnchorBearing(true); // Include Extrusion Groove 
-   translate([10,-8,11]) rotate([-90,0,0]) mirror() AnchorBearing(true);
+   translate([3,0,0])  AnchorSideBearing(true); // Include Extrusion Groove 
+   translate([-3,0,0])  mirror() AnchorSideBearing(true);
   } else {
-   translate([-10,0,0]) AnchorBearing(false); 
-   translate([10,0,0]) mirror(x) AnchorBearing(false);
+   translate([-10,0,0]) AnchorSideBearing(false); 
+   translate([10,0,0]) mirror(x) AnchorSideBearing(false);
  }
 }
 
@@ -567,9 +543,9 @@ module CenterBearing() {
 //AnchorBearingPair(true, false);
 //AnchorBearingPair(false);
 
-AnchorVBearing(true);//Single. Need mirror or AnchorBearingPair
-//AnchorVBearingPair(true, false);
-//AnchorVBearingPair(false);
+//AnchorSideBearing(true);//Single. Need mirror or AnchorBearingPair
+AnchorSideBearingPair(true, false);
+//AnchorSideBearingPair(false);
 
 
 //BigBearing30(true);  //  Uses large white Bearing
