@@ -1,26 +1,33 @@
 //  TriDPrinting.com Flying SkyDelta 3d Printer
 
-tabWidth=30;
+tabWidth=40;
 tabDepth=22;
 tabRadius=10;
-mountRadius=15;  // Software adjusts if larger that 1/2 tabWidth
+mountRadius=5;  // Software adjusts if larger that 1/2 tabWidth
 
 
-glassDepth=5;
+glassDepth=7.7;
 glassDiameter=300;
 
-
-boltWasher=6;
-boltSize=3.2;  // Note, must add actual size. A clearance size is not automatically added.
-boltCountersink=4;
-
-slotLength=10;
-slotClearance=2;
+glassCatchHeight = 3;  // Don't make the height much less than the Lip
+glassCatchLip = 4;
 
 
-height=9;
+boltWasher=7;
+boltSize=3.3;  // Note, must add actual size. A clearance size is not automatically added.
+boltCountersink=5;
+
+slotLength=4;
+slotClearance=3;
+
+
+tabHeight=4;
 eps=0.01;
 $fn=72;
+
+
+height=tabHeight+glassDepth+glassCatchHeight;
+
 
 module body() {
 	mr = (mountRadius > tabWidth/2) ? tabWidth/2 : mountRadius;
@@ -58,8 +65,15 @@ cylinder(r=boltSize/2,h=height);
 
 
 module glass() {
-	translate([glassDiameter/2, tabWidth/2, height-glassDepth])
-cylinder(r=glassDiameter/2,h=height, $fn=300);
+	translate([glassDiameter/2, tabWidth/2, height-glassDepth-glassCatchHeight])
+cylinder(r=glassDiameter/2,h=glassDepth, $fn=300);
+}
+
+
+module glassCatch() {
+	translate([glassDiameter/2, tabWidth/2, height-glassCatchHeight-eps])
+// For Flat Printing cylinder(r1=glassDiameter/2, r2=glassDiameter/2-glassCatchLip,h=glassCatchHeight+eps+eps, $fn=300);
+cylinder(r=glassDiameter/2-glassCatchLip,h=glassCatchHeight+eps+eps, $fn=300);
 }
 
 
@@ -69,13 +83,15 @@ module glassholder() {
     body();
     slot();
     glass();
+    glassCatch();
   }
 }
 
-translate([0,0,0]) glassholder();
-translate([0,-tabWidth-5,0]) glassholder();
-translate([0,tabWidth+5,0]) glassholder();
-translate([tabDepth*2+5,0,0]) glassholder();
-translate([tabDepth*2+5,-tabWidth-5,0]) glassholder();
-translate([tabDepth*2+5,tabWidth+5,0]) glassholder();
+translate([0,0,tabDepth-5]) rotate([0,-90,0]) glassholder();
+
+//translate([0,-tabWidth-5,0]) glassholder();
+//translate([0,tabWidth+5,0]) glassholder();
+//translate([tabDepth*2+5,0,0]) glassholder();
+//translate([tabDepth*2+5,-tabWidth-5,0]) glassholder();
+//translate([tabDepth*2+5,tabWidth+5,0]) glassholder();
 

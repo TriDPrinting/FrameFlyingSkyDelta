@@ -269,26 +269,27 @@ module AnchorSideBearing(IncludeGrooves=false, IncludeGuide=false) {
 
   difference() {
     union() {
-      translate([4,-3,19]) {
+      translate([4,-13,19]) {
         hull() {
           rotate([0,90-sideangle,0]) rotate([0,90,30]) {
             cylinder(r=6,h=9,$fn=16);
-            %translate([0,0,9.5]) vBearing();
+            //%translate([0,0,9.5]) vBearing();
           }
-          translate([0,-4,-16]) cube([1,12,19]); 
+          #translate([-3,7,-12]) cube([5,1,15]); 
         }
       }
       translate([-2,-7.5,0]) cube([10,15,23]);
     }  // union
-      translate([5,-3,19]) rotate([0,90-sideangle,0]) rotate([0,90,30])  BoltMold(d=3, h=20, faces=6);
+      translate([4,-13,19]) rotate([0,90-sideangle,0]) rotate([0,90,30])  translate([0,0,3]) BoltMold(d=3, h=20, faces=6);
 
 
+      translate([5.3,0,17]) rotate([0,-90,0])  BoltMold(d=3, h=20, faces=16);
       translate([5.3,0,7]) rotate([0,-90,0])  BoltMold(d=3, h=20, faces=16);
       // Misumi Mold
       translate([-7.5,0,-15]) MisumiMold(50,0.4,endboltlength, IncludeGrooves);
 
-  translate([1,-8,0]) rotate([0,35,-25]) cube([6,18,14]);
-  translate([-2,-8,21]) rotate([0,20,0]) cube([5,5.5,4]);
+  translate([-10,-8,-16]) rotate([40,35,-25]) cube([10,34,20]);
+  //translate([-2,-8,21]) rotate([0,20,0]) cube([5,5.5,4]);
 
   } // difference
 }
@@ -503,13 +504,19 @@ module PoleEnds(type,innerdia) {
 
       } else if (type==2) {
         //  Catch
+        difference() {
+          translate([0,0,12]) sphere(r=4.1, $fn=36);
 
-        translate([-1.5,0,18]) rotate([0,90,0]) intersection() {
-           difference() {
-             translate([0,0,0]) cylinder(r=9,h=3, $fn=36);
-             translate([2,0,-eps]) cylinder(r=5,h=3+eps+eps, $fn=36);
-           }
-           translate([3,-6,0]) cube([6,12,3]);
+          // The Subtraction...
+          translate([0,0,12]) sphere(r=2.3, $fn=36);
+          translate([0,0,9]) {
+            for (a = [0:120:359]) rotate([0, 0, a]) {
+              translate([1,0,0]) rotate([0,0,-60]) union() {
+                cube([10,10,10]);
+                rotate([0,0,30]) cube([10,10,10]);
+              }
+            }
+          }
         }
      }
 
@@ -548,8 +555,8 @@ module CenterBearing() {
 //AnchorBearingPair(true, false);
 //AnchorBearingPair(false);
 
-//AnchorSideBearing(true);//Single. Need mirror or AnchorBearingPair
-AnchorSideBearingPair(true, false);
+AnchorSideBearing(true);//Single. Need mirror or AnchorBearingPair
+//AnchorSideBearingPair(true, false);
 //AnchorSideBearingPair(false);
 
 
@@ -561,6 +568,7 @@ AnchorSideBearingPair(true, false);
 //Effector();
 //JHeadMountPlate();
 
+// 1:2   0:1
 //for (x=[1:2]) for (y=[0:1]) translate([x*15,y*15,0]) PoleEnds(x, 4.2);
 //CenterBearing();
 
