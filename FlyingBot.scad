@@ -555,8 +555,8 @@ module CenterBearing() {
 //AnchorBearingPair(true, false);
 //AnchorBearingPair(false);
 
-AnchorSideBearing(true);//Single. Need mirror or AnchorBearingPair
-//AnchorSideBearingPair(true, false);
+//AnchorSideBearing(true);//Single. Need mirror or AnchorBearingPair
+AnchorSideBearingPair(true, false);
 //AnchorSideBearingPair(false);
 
 
